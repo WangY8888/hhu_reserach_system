@@ -17,7 +17,7 @@ hhu-research-system/
 
 ## 🧩 功能概述
 
-### 🌊 `AquaLab_cleaned.html`
+### 🌊 `demo1.html`
 系统的主操作界面，包含：
 - **实验记录模块**：支持添加、查看与编辑实验信息。  
 - **论文进度模块**：记录论文撰写与提交进度。  
@@ -29,7 +29,7 @@ hhu-research-system/
 
 ---
 
-### 🔐 `login_slider_cleaned.html`
+### 🔐 `login.html`
 项目登录入口页，具有：
 - 用户名 + 密码输入框；  
 - 登录按钮与跳转逻辑（对接 `server_cleaned.js` 的 `/login` 接口）；  
@@ -40,11 +40,11 @@ hhu-research-system/
 
 ---
 
-### ⚙️ `server_cleaned.js`
+### ⚙️ `server.js`
 项目后端主文件，基于 **Node.js + Express + MySQL**。  
 实现以下功能：
 - 用户注册、登录与鉴权；
-- 实验记录、论文进度、文献、日志的 **增删改查**；
+- 实验记录、论文进度、文献、日志的 **增加**；
 - 文件上传（使用 **multer** 中间件）；
 - 数据库连接与错误捕获；
 - 端口监听与静态文件服务（适配前端页面）。
