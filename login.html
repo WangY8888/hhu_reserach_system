@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>河海大学智慧研究生科研系统 - 登录</title>
+  <style>
+    /* ==========================
+       页面整体样式
+       说明：设置背景、布局、全局光标（自定义 svg），保持原有视觉与响应式行为
+       ========================== */
+    body {
+      background-color: rgb(228, 240, 250);
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      gap: 53px; /* 按原稿保留的间距 */
+
+      /* 背景图片（校区大图） */
+      background-image: url("金坛校区.jpg");
+      background-position: center;
+      background-size: cover;
+
+      /* 自定义鼠标指针（SVG data URI） */
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 30 40"><path d="M1.5 1.5l5 15l2.5-7.5l7.5-2.5z" fill="white" stroke="%230348b0" stroke-width="1.5"/></svg>'), auto;
+    }
+
+    /* 卡片容器基类：介绍卡与登录卡样式类似，便于视觉一致 */
+    .introduce,
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.95);
+      width: 40%;
+      height: 40%;
+      padding: 13px;
+      border-radius: 7px;
+      box-shadow: 0 0 7px rgba(0, 0, 0, 0.3);
+      position: relative;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 介绍卡顶部文字组（切换说明文字） */
+    .introduce-text-group {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0348b0;
+      text-align: center;
+      z-index: 3;
+    }
+
+    .introduce-text-group span {
+      position: absolute;
+      top: 7px;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .introduce-text-group span.active {
+      opacity: 1;
+    }
+
+    /* 图片轮播区 */
+    .shiftImg {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .shiftImg img {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 53.6%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .shiftImg img.active {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    /* 底部切换按钮 */
+    .button {
+      width: 5px;
+      height: 5px;
+      border-radius: 20%;
+      background-color: #bbb;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-bottom: 3%;
+      z-index: 1;
+    }
+
+    .button.active {
+      background-color: #0348b0;
+    }
+
+    .button:hover {
+      background-color: #001f70;
+    }
+
+    /* 顶部导航（固定） */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: rgb(255, 255, 255);
+      padding: 7px 13px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    nav h1 {
+      font-size: 24px;
+      color: #0348b0;
+      margin-left: 6px;
+      font-family: 'Lobster', cursive;
+      text-shadow: 1px 1px 5px rgba(59, 130, 236, 0.4);
+    }
+
+    /* 登录表单内布局 */
+    form {
+      text-align: center;
+      width: 80%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 11px;
+      box-sizing: border-box;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      gap: 7px;
+    }
+
+    label {
+      font-size: 13px;
+      width: 67px;
+      text-align: right;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      flex: 1;
+      padding: 5px 8px;
+      border-radius: 3px;
+      border: 1px solid #acc3e3;
+      font-size: 12px;
+      max-width: 201px;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #0348b0;
+      box-shadow: 0 0 4px rgba(3, 72, 176, 0.4);
+      outline: none;
+    }
+
+    .input-group2 {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+    }
+
+    input[type="button"],
+    input[type="reset"] {
+      font-size: 12px;
+      width: 13%;
+      border-radius: 7px;
+      border: 1px solid #ccc;
+      padding: 5px;
+      background-color: #0348b0;
+      color: white;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    /* logo 与标题位置（移动端隐藏以节省空间） */
+    #logo {
+      position: absolute;
+      top: 32%;
+      left: 8%;
+      width: 107px;
+      height: 107px;
+    }
+
+    #h1 {
+      font-size: 19px;
+      position: absolute;
+      top: 13px;
+      font-family: "Microsoft YaHei", "Segoe UI", "PingFang SC", sans-serif;
+      font-weight: 600;
+      color: #0348b0;
+    }
+
+    /* 响应式：当视口小于 900px 时隐藏较占空间的元素 */
+    @media (max-width: 900px) {
+      .introduce-text-group,
+      #h1,
+      #logo {
+        display: none;
+      }
+
+      /* 卡片宽度调整以适配窄屏 */
+      .introduce,
+      .login-container {
+        width: 80%;
+        height: auto;
+      }
+
+      body {
+        flex-direction: column;
+        gap: 20px;
+        padding-top: 60px; /* 保证固定导航不遮挡内容 */
+      }
+
+      nav {
+        position: fixed;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 顶部导航：校徽 + 系统标题（保留原始链接与内容） -->
+  <nav>
+    <a href="https://gs.hhu.edu.cn/" title="进入河海大学官网">
+      <img src="河海大学校徽.png" width="40" height="40" alt="河海大学校徽">
+    </a>
+    <h1>河海大学智慧研究生科研系统</h1>
+  </nav>
+
+  <!-- 介绍卡：图片轮播与切换说明 -->
+  <div class="introduce">
+    <div class="introduce-text-group">
+      <span class="active">西康路校区</span>
+      <span>江宁校区</span>
+      <span>常州新校区</span>
+    </div>
+
+    <div class="shiftImg">
+      <img src="西康路校区.jpg" width="60%" height="335" id="logo1" class="active" alt="西康路校区">
+      <img src="江宁校区.jpg" width="60%" height="335" id="logo2" alt="江宁校区">
+      <img src="常州新校区.jpg" width="60%" height="335" id="logo3" alt="常州新校区">
+    </div>
+
+    <div class="buttons-container">
+      <button class="button active" onclick="changeImage(0)" aria-label="切换到第一张"></button>
+      <button class="button" onclick="changeImage(1)" aria-label="切换到第二张"></button>
+      <button class="button" onclick="changeImage(2)" aria-label="切换到第三张"></button>
+    </div>
+  </div>
+
+  <!-- 登录卡：表单提交通过 fetch 调用本地后端（保持原有 action 与 JS 行为） -->
+  <div class="login-container">
+    <h1 id="h1">欢迎登录河海大学智慧研究生科研系统</h1>
+
+    <div>
+      <img id="logo" src="河海大学校徽.png" alt="校徽">
+    </div>
+
+    <form action="login.php" method="post" onsubmit="return false;">
+      <div class="input-group">
+        <label for="username">用户名：</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">密码：</label>
+        <input type="password" id="password" name="password" data="passwordtype" required>
+      </div>
+
+      <div class="input-group2">
+        <input type="button" value="登录" onclick="login()">
+        <input type="reset" value="取消">
+      </div>
+    </form>
+  </div>
+
+  <script>
+    /*
+      说明：以下脚本保持原有行为，仅对变量和函数添加了注释说明，
+      功能包括：轮播切换、登录请求与回车键提交支持。
+    */
+
+    // 当前显示的图片索引
+    let currentIndex = 0;
+
+    // DOM 列表：轮播图片、底部按钮、顶部说明文字
+    const slides = document.querySelectorAll('.shiftImg img');
+    const buttons = document.querySelectorAll('.button');
+    const introduceText = document.querySelectorAll('.introduce-text-group span');
+
+    /**
+     * 切换轮播图片及对应的说明与按钮样式
+     * index: 要切换到的图片索引（0-based）
+     */
+    function changeImage(index) {
+      if (index < 0) index = 0;
+      if (index >= slides.length) index = slides.length - 1;
+
+      slides.forEach((img, i) => {
+        img.classList.toggle('active', i === index);
+      });
+
+      buttons.forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+
+      introduceText.forEach((text, i) => {
+        text.classList.toggle('active', i === index);
+      });
+
+      currentIndex = index;
+    }
+
+    /**
+     * 登录函数：向本地后端 /login 发送 JSON 请求
+     * 成功后写入 sessionStorage 并跳转到 demo1.html
+     */
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!username || !password) {
+        alert("请输入用户名和密码！");
+        return;
+      }
+
+      fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(`登录成功！${data.username}`);
+            sessionStorage.setItem('username', data.username);
+            window.location.href = "demo1.html"; // 保持原有跳转
+          } else {
+            alert("用户名或密码错误！");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("服务器连接失败！");
+        });
+    }
+
+    // 支持回车键提交登录（兼容用户在输入框按回车的预期行为）
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        login();
+      }
+    });
+  </script>
+</body>
+
+</html>
