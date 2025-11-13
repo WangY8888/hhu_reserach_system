@@ -8,7 +8,7 @@
 ## 📁 项目结构
 hhu-research-system/
 │
-├── demo1.html # 系统主界面（仪表盘 / 实验记录 / 文献管理 / 论文进度 / 日志）
+├── hhu_research_system.html # 系统主界面（仪表盘 / 实验记录 / 文献管理 / 论文进度 / 日志）
 ├── login=.html # 登录界面（带轮播图与身份切换动画）
 └── server_cleaned.js # Node.js 后端服务（用户认证 + 数据接口）
 
@@ -17,7 +17,7 @@ hhu-research-system/
 
 ## 🧩 功能概述
 
-### 🌊 `demo1.html`
+### 🌊 `hhu_research_system.html`
 系统的主操作界面，包含：
 - **实验记录模块**：支持添加、查看与编辑实验信息。  
 - **论文进度模块**：记录论文撰写与提交进度。  
