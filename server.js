@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 
 // ----------------- Supabase 连接 -----------------
 const SUPABASE_URL = 'https://nztdjvwosssevoiukuex.supabase.co';
-const SUPABASE_KEY = 'YOUR_SUPABASE_SERVICE_KEY'; // 注意：不要公开给前端
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56dGRqdndvc3NzZXZvaXVrdWV4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzAxNjg5MSwiZXhwIjoyMDc4NTkyODkxfQ.2BkYtiUsX3A2PyKhpEKEHHovX6hNjWf8MzfcA8KTzyg'; // 注意：不要公开给前端
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ----------------- 上传目录 & multer 配置 -----------------
@@ -127,4 +127,5 @@ app.post('/addLiterature', upload.single('literatureFile'), async (req, res) => 
 // ----------------- 启动服务器 -----------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Supabase 服务器运行在端口 ${PORT}`));
+
 
