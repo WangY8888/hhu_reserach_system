@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>河海大学智慧研究生科研系统</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    /* ===============================
+       全局基础样式
+       说明：重置默认间距、启用盒模型、设置默认字体与自定义鼠标指针。
+       =============================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", sans-serif;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 30 40"><path d="M1.5 1.5l5 15l2.5-7.5l7.5-2.5z" fill="white" stroke="%230348b0" stroke-width="1.5"/></svg>'), auto;
+    }
+
+    body {
+      /* 页面主背景：校徽图片居中且铺满可视区域 */
+      overflow: auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #e0f7ff;
+      background-image: url("河海校徽.png");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      background-color: transparent;
+    }
+
+    /* ===============================
+       顶部导航栏（固定）
+       说明：固定位置、半透明背景、模糊效果、响应式隐藏右侧导航。 
+       =============================== */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 53.6px;
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 1.34px 5.36px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 1.34%;
+      backdrop-filter: blur(5.36px);
+      z-index: 20;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      position: relative;
+      left: 10.05px;
+      font-size: 18.76px;
+      color: #0348b0;
+      line-height: 46.9px;
+      font-family: "Microsoft YaHei", "Segoe UI", "PingFang SC", sans-serif;
+    }
+
+    nav {
+      position: absolute;
+      display: flex;
+      justify-content: space-between;
+      right: 67px;
+      gap: 6.7px;
+    }
+
+    nav a {
+      margin-left: 40.2px;
+      text-decoration: none;
+      color: #033d94;
+      font-weight: 600;
+      transition: color 0.3s;
+      font-size: 13.4px;
+    }
+
+    nav a:hover {
+      color: #4e84e9;
+    }
+
+    /* ===============================
+       主功能卡片样式
+       说明：响应式网格、卡片悬浮效果与入场动画。 
+       =============================== */
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160.8px, 1fr));
+      gap: 20.1px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 80.4px;
+      z-index: 10;
+      margin-top: 10px;
+    }
+
+    .card {
+      background: #0348b0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12.06px;
+      backdrop-filter: blur(6.7px);
+      box-shadow: 0 5.36px 13.4px rgba(0, 100, 255, 0.25);
+      padding: 16.75px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      animation: popIn 0.5s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6.7px);
+      box-shadow: 0 0 16.75px rgba(0, 113, 243, 0.5);
+    }
+
+    .card h3 {
+      font-size: 13.4px;
+      color: #ffffff;
+      margin-bottom: 6.7px;
+    }
+
+    .card p {
+      color: #ffffff;
+      font-size: 11.39px;
+    }
+
+    /* 弹窗卡片（添加实验 / 论文进度 / 文献）
+       说明：统一样式、圆角、阴影、滚动处理，初始为隐藏（通过 JS 显示）。
+    */
+    .newcard,
+    .newcard2,
+    .newcard4 {
+      position: absolute;
+      width: 53.6vw;
+      max-width: 603px;
+      height: auto;
+      max-height: 70vh;
+      overflow-y: auto;
+      border: 1.675px solid #ffffff;
+      background: #ffffff;
+      display: none;
+      border-radius: 33.5px;
+      box-shadow: 0 0 16.75px rgba(0, 0, 0, 0.25);
+      padding: 26.8px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 16.08px;
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .newcard h2,
+    .newcard2 h2,
+    .newcard4 h2 {
+      margin-bottom: 26.8px;
+      color: #0348b0;
+      font-size: 18.76px;
+    }
+
+    .newcard form,
+    .newcard2 form,
+    .newcard4 form {
+      display: flex;
+      flex-direction: column;
+      gap: 10.05px;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      text-align: left;
+    }
+
+    .newcard label,
+    .newcard2 label,
+    .newcard4 label {
+      width: 60%;
+      font-weight: bold;
+      color: #033d94;
+      text-align: left;
+      font-size: 13.4px;
+    }
+
+    .newcard input,
+    .newcard textarea,
+    .newcard2 input,
+    .newcard2 textarea,
+    .newcard4 input,
+    .newcard4 textarea {
+      width: 60%;
+      padding: 6.7px;
+      border: 1.005px solid #acc3e3;
+      border-radius: 5.36px;
+      font-size: 12px;
+    }
+
+    .newcard textarea,
+    .newcard2 textarea,
+    .newcard4 textarea {
+      resize: vertical;
+      height: 67px;
+      width: 60%;
+    }
+
+    .newcard button,
+    .newcard2 button,
+    .newcard4 button {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: row;
+      margin-top: 5.36px;
+      padding: 6.7px;
+      border: none;
+      border-radius: 5.36px;
+      background-color: #0348b0;
+      color: white;
+      font-size: 12.06px;
+      cursor: pointer;
+      width: 20%;
+      height: 33.5px;
+      transition: background-color 0.3s;
+    }
+
+    .newcard button:hover,
+    .newcard2 button:hover,
+    .newcard4 button:hover {
+      background-color: #022e70;
+    }
+
+    /* 消息提示（页面右上角）
+       说明：用于显示成功/错误/信息性提示，JS 控制显示与隐藏。 */
+    .message {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
+
+    .message.success {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .message.error {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .message.info {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    /* 日历与日志区域样式
+       说明：左侧日历、右侧日志；日历带翻月按钮、当天高亮。 */
+    .calendar-log-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 26.8px;
+      margin-top: 0px;
+      margin-bottom: 50px;
+      animation: popIn 0.3s ease;
+    }
+
+    #calendar-container {
+      margin: 0;
+      width: 214.4px;
+      background: #f0f8ff;
+      border-radius: 8.04px;
+      padding: 6.7px;
+      text-align: center;
+      box-shadow: 0 3.35px 10.05px rgba(0, 0, 0, 0.2);
+      border: 2px solid #0348b0;
+    }
+
+    #calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6.7px;
+    }
+
+    #calendar-header button {
+      background: #0348b0;
+      color: #fff;
+      border: none;
+      padding: 3.35px 6.7px;
+      border-radius: 3.35px;
+      cursor: pointer;
+      font-size: 10.72px;
+    }
+
+    #calendar-header button:hover {
+      background: #022e70;
+    }
+
+    #month-year {
+      font-weight: bold;
+      color: #0348b0;
+      font-size: 12.06px;
+    }
+
+    .today {
+      background: #0348b0;
+      color: #ffffff;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      width: 14.28%;
+      padding: 5.36px;
+      text-align: center;
+      font-size: 10.72px;
+    }
+
+    th {
+      color: #0348b0;
+      font-weight: bold;
+    }
+
+    td {
+      cursor: pointer;
+      border-radius: 50%;
+      color: #0348b0;
+      font-weight: bold;
+    }
+
+    td:hover {
+      background: #0348b0;
+      color: #fff;
+    }
+
+    /* 右侧日志面板样式 */
+    #log-container {
+      position: static;
+      width: 234.5px;
+      height: auto;
+      min-height: 268px;
+      background-color: #f0f8ff;
+      border-radius: 8.04px;
+      padding: 10.05px;
+      box-shadow: 0 3.35px 10.05px rgba(0, 0, 0, 0.2);
+      font-family: "Microsoft YaHei", sans-serif;
+      border: 2px solid #0348b0;
+    }
+
+    #log-container h3 {
+      color: #0348b0;
+      text-align: center;
+      margin-bottom: 10.05px;
+      font-size: 14.74px;
+    }
+
+    .log-entry {
+      margin-bottom: 13.4px;
+      padding-bottom: 10.05px;
+      border-bottom: 1px dashed #acc3e3;
+    }
+
+    .log-entry h4 {
+      color: #033d94;
+      margin-bottom: 5.36px;
+      font-size: 12.06px;
+    }
+
+    .log-entry p {
+      color: #333;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .log-form textarea {
+      width: 100%;
+      height: 53.6px;
+      padding: 6.7px;
+      border: 1.005px solid #acc3e3;
+      border-radius: 5.36px;
+      font-family: "Microsoft YaHei", sans-serif;
+      resize: vertical;
+      margin-bottom: 6.7px;
+      font-size: 10.72px;
+    }
+
+    .log-form button {
+      background-color: #0348b0;
+      color: white;
+      border: none;
+      padding: 5.36px 10.05px;
+      border-radius: 5.36px;
+      cursor: pointer;
+      float: right;
+      font-size: 10.72px;
+    }
+
+    .log-form button:hover {
+      background-color: #022e70;
+      transition: background-color 0.3s ease;
+    }
+
+    /* 日志列表 / 查看器 */
+    .log-viewer {
+      width: 90%;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .log-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: #f5f9ff;
+      border-radius: 8px;
+    }
+
+    .log-filter label {
+      width: auto;
+      margin: 0;
+    }
+
+    .log-filter input {
+      width: auto;
+    }
+
+    .log-filter button {
+      width: auto;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .logs-list {
+      margin-bottom: 20px;
+    }
+
+    .log-item {
+      background: #f8fafc;
+      border: 1px solid #e1e8f0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .log-item:hover {
+      background: #eef4ff;
+      transform: translateX(5px);
+    }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .log-date {
+      color: #0348b0;
+      font-weight: bold;
+    }
+
+    .log-type {
+      color: #666;
+      background: #e1e8f0;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+    }
+
+    .log-content {
+      /* 结合显示样式与滚动限制：用于日志文本与历史记录显示 */
+      margin-bottom: 13.4px;
+      max-height: 201px;
+      overflow-y: auto;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .log-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .log-actions button {
+      width: auto;
+      padding: 8px 15px;
+      font-size: 12px;
+    }
+
+    #exportLogs {
+      background: #28a745;
+    }
+
+    #exportLogs:hover {
+      background: #218838;
+    }
+
+    #clearLogs {
+      background: #dc3545;
+    }
+
+    #clearLogs:hover {
+      background: #c82333;
+    }
+
+    /* 波浪底部装饰与动画（固定在底部，作为视觉效果） */
+    .wave-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      height: 147.4px;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .wave {
+      position: absolute;
+      width: 200%;
+      height: 134px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 100%;
+      animation: waveMove 8s linear infinite;
+    }
+
+    .wave:nth-child(1) {
+      bottom: 0;
+      background: rgba(0, 180, 255, 0.35);
+      animation-delay: 0s;
+    }
+
+    .wave:nth-child(2) {
+      bottom: 13.4px;
+      background: rgba(0, 120, 255, 0.25);
+      animation-delay: -2s;
+    }
+
+    .wave:nth-child(3) {
+      bottom: 20.1px;
+      background: rgba(180, 189, 219, 0.2);
+      animation-delay: -4s;
+    }
+
+    @keyframes waveMove {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* 点击涟漪效果（JS 动态创建 .ripple 元素） */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: #0348b0ac;
+      animation: rippleAnimation 1s forwards;
+      pointer-events: none;
+    }
+
+    @keyframes rippleAnimation {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* 图标与 logo 的基础样式 */
+    .fas {
+      font-size: 13.4px;
+    }
+
+    #logoImg img {
+      width: 33.5px;
+      height: 33.5px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 消息提示容器（由 JS 控制显示） -->
+  <div id="message" class="message"></div>
+
+  <!-- 顶部导航栏：校徽 + 系统标题 + 右侧用户导航 -->
+  <header>
+    <div id="logoImg">
+      <img src="河海大学校徽.png" width="33.5" height="33.5" alt="河海大学校徽">
+    </div>
+
+    <h1>河海大学智慧研究生科研系统</h1>
+
+    <div id="app">
+      <nav>
+        <div id="navRight">
+          <a href=" "><i class="fas fa-home"></i> 主页</a>
+          <a href="#"><i class="fas fa-user"></i> <u>{{ username }}</u></a>
+          <a href="#"><i class="fas fa-sign-out-alt"></i> 登出</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 日历与个人日志区域（左：日历，右：日志） -->
+  <div class="calendar-log-container">
+    <div id="calendar-container">
+      <div id="calendar-header">
+        <button id="prev-month">&lt;</button>
+        <div id="month-year"></div>
+        <button id="next-month">&gt;</button>
+      </div>
+
+      <table id="calendar-table">
+        <thead>
+          <tr>
+            <th>日</th>
+            <th>一</th>
+            <th>二</th>
+            <th>三</th>
+            <th>四</th>
+            <th>五</th>
+            <th>六</th>
+          </tr>
+        </thead>
+
+        <tbody id="calendar-body"></tbody>
+      </table>
+    </div>
+
+    <div id="log-container">
+      <h3>个人日志</h3>
+
+      <div class="log-content">
+        <div class="log-entry">
+          <h4>今日计划</h4>
+          <p>请在此记录您今天的学习和研究计划...</p>
+        </div>
+
+        <div class="log-entry">
+          <h4>学习笔记</h4>
+          <p>记录您的学习心得和研究进展...</p>
+        </div>
+
+        <div class="log-entry">
+          <h4>问题与思考</h4>
+          <p>记录在研究过程中遇到的问题和思考...</p>
+        </div>
+      </div>
+
+      <div class="log-form">
+        <textarea id="log-input" placeholder="写下您的日志..."></textarea>
+        <button id="save-log">保存日志</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主功能卡片区：三个卡片分别对应实验记录 / 论文进度 / 文献管理 -->
+  <main>
+    <div class="card">
+      <h3>📌 添加实验记录</h3>
+      <p>记录今天的实验数据与结果。</p>
+    </div>
+
+    <div class="card">
+      <h3>📄 填写论文进度</h3>
+      <p>查看论文撰写进度和当前章节完成情况。</p>
+    </div>
+
+    <div class="card">
+      <h3>📚 管理文献库</h3>
+      <p>添加、查看或标记你的文献资料。</p>
+    </div>
+  </main>
+
+  <!-- 弹窗：实验记录 -->
+  <div class="newcard" id="newcard1">
+    <h2 id="newcard1-title">添加实验记录</h2>
+
+    <form id="addExperimentForm">
+      <label for="expName">实验名称：</label>
+      <input type="text" id="expName" name="expName" placeholder="请输入实验名称" required>
+
+      <label for="expDate">实验日期：</label>
+      <input type="date" id="expDate" name="expDate" required>
+
+      <label for="expData">实验数据：</label>
+      <textarea id="expData" name="expData" placeholder="请输入实验数据或结果"></textarea>
+
+      <label for="expNote">实验备注：</label>
+      <textarea id="expNote" name="expNote" placeholder="输入实验说明或问题"></textarea>
+
+      <button type="submit">保存实验记录</button>
+      <button type="button" id="backBtn">返回主页</button>
+    </form>
+  </div>
+
+  <!-- 弹窗：论文进度 -->
+  <div class="newcard2" id="newcard2">
+    <h2 id="newcard2-title">填写论文进度</h2>
+
+    <form id="progressForm">
+      <label for="progressSummary">进度概述：</label>
+      <input type="text" id="progressSummary" name="progressSummary" placeholder="请输入进度概述（1-3句）" required>
+
+      <label for="completedTasks">具体完成项：</label>
+      <input type="text" id="completedTasks" name="completedTasks" placeholder="标好序号，用短句写出" required>
+
+      <label for="output">结果产出：</label>
+      <textarea id="output" name="output" placeholder="请输入结果产出（1-3句）"></textarea>
+
+      <label for="issues">遇到的问题：</label>
+      <textarea id="issues" name="issues" placeholder="请输入遇到的问题（1-3句）"></textarea>
+
+      <label for="nextPlan">下阶段计划：</label>
+      <textarea id="nextPlan" name="nextPlan" placeholder="请输入下阶段计划（1-3句）"></textarea>
+
+      <button type="submit">保存进度</button>
+      <button type="button" id="backBtn2">返回主页</button>
+    </form>
+  </div>
+
+  <!-- 弹窗：文献管理（已移除文件上传 UI） -->
+  <div class="newcard4" id="newcard4">
+    <h2 id="newcard4-title">管理文献库</h2>
+
+    <form id="literatureForm">
+      <label for="title">文献标题：</label>
+      <input type="text" id="title" name="title" placeholder="请输入文献标题" required>
+
+      <label for="authors">作者：</label>
+      <input type="text" id="authors" name="authors" placeholder="请输入作者（多个作者用逗号分隔）" required>
+
+      <label for="journal">期刊/会议：</label>
+      <input type="text" id="journal" name="journal" placeholder="发表的期刊或会议名称" required>
+
+      <label for="year">年份：</label>
+      <input type="number" id="year" name="year" placeholder="例如：2025" min="1900" max="2100" required>
+
+      <label for="keywords">关键词：</label>
+      <input type="text" id="keywords" name="keywords" placeholder="请输入关键词，用逗号分隔">
+
+      <label for="abstract">摘要：</label>
+      <textarea id="abstract" name="abstract" placeholder="请输入文献摘要（1-5句）"></textarea>
+
+      <label for="link">文献链接：</label>
+      <input type="url" id="link" name="link" placeholder="文献在线链接或 DOI">
+
+      <label for="notes">备注：</label>
+      <textarea id="notes" name="notes" placeholder="请输入备注信息"></textarea>
+
+      <button type="submit">保存文献</button>
+      <button type="button" id="backBtn4">返回主页</button>
+    </form>
+  </div>
+
+  <!-- 波浪动画层（视觉装饰） -->
+  <div class="wave-container">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+
+  <!-- ===============================
+       JavaScript 功能部分（保持原有功能与逻辑，不做功能性修改）
+       说明：使用原有的事件绑定、后端交互接口（本地开发接口）、以及页面交互逻辑。
+       =============================== -->
+
+  <script>
+    // Vue 实例：绑定顶部用户名显示（从 sessionStorage 中读取）
+    new Vue({
+      el: "#app",
+      data: {
+        username: sessionStorage.getItem('username') || '未登录'
+      }
+    });
+    const BASE_URL = "https://hhu-reserach-system.onrender.com";
+    // 显示页面右上角的消息提示（成功/错误/信息）
+    function showMessage(message, type) {
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = message;
+      messageEl.className = 'message ' + type;
+      messageEl.style.display = 'block';
+
+      setTimeout(() => {
+        messageEl.style.display = 'none';
+      }, 3000);
+    }
+
+    // 检测窗口是否最大化，用于控制右侧导航在非最大化时隐藏
+    function isWindowMaximized() {
+      return (
+        window.outerWidth === screen.availWidth &&
+        window.outerHeight === screen.availHeight
+      );
+    }
+
+    function updateNavByWindowState() {
+      const navRight = document.getElementById('navRight');
+      if (!navRight) return;
+
+      if (!isWindowMaximized()) {
+        navRight.style.display = 'none';
+      } else {
+        navRight.style.display = 'flex';
+      }
+    }
+
+    window.addEventListener('load', updateNavByWindowState);
+    window.addEventListener('resize', updateNavByWindowState);
+    window.addEventListener('focus', updateNavByWindowState);
+
+    // 点击页面任意位置创建涟漪特效（JS 动态创建 .ripple 元素）
+    document.body.addEventListener('click', function (e) {
+      const ripple = document.createElement('div');
+      ripple.classList.add('ripple');
+
+      const x = e.clientX;
+      const y = e.clientY;
+
+      ripple.style.left = `${x - 50}px`;
+      ripple.style.top = `${y - 50}px`;
+
+      const size = 80;
+      ripple.style.width = `${size}px`;
+      ripple.style.height = `${size}px`;
+
+      document.body.appendChild(ripple);
+
+      setTimeout(() => {
+        ripple.remove();
+      }, 800);
+    });
+
+    // 登出：移除 sessionStorage 并跳转到登录页
+    document.querySelector('a[href="#"]:last-child').addEventListener('click', function (e) {
+      e.preventDefault();
+      sessionStorage.removeItem('username');
+      window.location.href = 'login.html';
+    });
+
+    // 卡片点击逻辑：点击卡片后隐藏主卡片并显示对应弹窗，同时隐藏日历/日志区
+    const newcard1 = document.getElementById('newcard1');
+    const newcard2 = document.getElementById('newcard2');
+
+    document.querySelectorAll('.card').forEach((card, index) => {
+      if (index === 0) {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+          newcard1.style.display = 'block';
+          document.querySelector('.calendar-log-container').style.display = 'none';
+        });
+      }
+      else if (index === 1) {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+          newcard2.style.display = 'block';
+          document.querySelector('.calendar-log-container').style.display = 'none';
+        });
+      }
+      else if (index === 2) {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+          document.getElementById('newcard4').style.display = 'block';
+          document.querySelector('.calendar-log-container').style.display = 'none';
+        });
+      }
+    });
+
+    // 返回按钮：从弹窗返回到主页视图
+    document.body.addEventListener('click', function (e) {
+      if (e.target.id === 'backBtn') {
+        document.querySelectorAll('.card').forEach(c => c.style.display = 'block');
+        newcard1.style.display = 'none';
+        document.querySelector('.calendar-log-container').style.display = 'flex';
+      } else if (e.target.id === 'backBtn2') {
+        document.querySelectorAll('.card').forEach(c => c.style.display = 'block');
+        newcard2.style.display = 'none';
+        document.querySelector('.calendar-log-container').style.display = 'flex';
+      } else if (e.target.id === 'backBtn4') {
+        document.querySelectorAll('.card').forEach(c => c.style.display = 'block');
+        document.getElementById('newcard4').style.display = 'none';
+        document.querySelector('.calendar-log-container').style.display = 'flex';
+      }
+    });
+
+    /* ====== 实验记录保存（与后端交互）
+       说明：将实验数据 POST 到本地开发接口 /addExperiment；保存成功时会刷新历史列表。
+    */
+    function saveExperiment() {
+      const expName = document.getElementById('expName').value;
+      const expDate = document.getElementById('expDate').value;
+      const expData = document.getElementById('expData').value;
+      const expNote = document.getElementById('expNote').value;
+
+      const username = sessionStorage.getItem('username');
+      if (!username) {
+        alert('未检测到登录用户，请先登录');
+        return;
+      }
+
+      fetch(`${BASE_URL}/addExperiment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, expName, expDate, expData, expNote })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('实验记录保存成功！（ID: ' + data.experimentId + '）');
+            document.getElementById('addExperimentForm').reset();
+            document.querySelectorAll('.card').forEach(c => c.style.display = 'block');
+            document.getElementById('newcard1').style.display = 'none';
+          } else {
+            console.error(data);
+            alert('实验记录保存失败：' + (data.reason || data.error || 'unknown'));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('保存出错，请查看控制台');
+        });
+    }
+
+    // ====== 实验历史：拉取并渲染到弹窗内（最近记录优先显示） ======
+    async function loadExperimentList() {
+      const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+      if (!username) {
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/getExperiments?username=' + encodeURIComponent(username));
+        const data = await res.json();
+        if (!data.success) {
+          console.warn('拉取实验记录失败', data);
+          return;
+        }
+
+        renderExperimentHistory(data.data || []);
+      } catch (err) {
+        console.error('加载实验记录出错：', err);
+      }
+    }
+
+    function renderExperimentHistory(list) {
+      const containerId = 'experimentHistoryContainer';
+      let container = document.getElementById(containerId);
+      const parent = document.getElementById('newcard1');
+      if (!parent) return;
+
+      if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.style.width = '80%';
+        container.style.margin = '20px auto';
+        container.style.padding = '12px';
+        container.style.borderTop = '1px dashed #acc3e3';
+        container.style.textAlign = 'left';
+        container.style.color = '#033d94';
+        parent.appendChild(container);
+      }
+
+      container.innerHTML = '<h3 style="color:#0348b0;margin-bottom:8px;">历史实验记录（最近）</h3>';
+
+      if (!list || list.length === 0) {
+        const p = document.createElement('p');
+        p.textContent = '暂无实验记录。';
+        p.style.color = '#666';
+        container.appendChild(p);
+        return;
+      }
+
+      const maxShow = 10;
+      list.slice(0, maxShow).forEach(item => {
+        const entry = document.createElement('div');
+        entry.style.padding = '8px 0';
+        entry.style.borderBottom = '1px solid #eee';
+
+        const title = document.createElement('div');
+        title.style.fontWeight = '700';
+        title.style.marginBottom = '4px';
+
+        let dateStr = '';
+        if (item.expDate) {
+          dateStr = ' ' + (item.expDate.includes('T') ? item.expDate.split('T')[0] : item.expDate);
+        } else if (item.created_at) {
+          dateStr = ' ' + (item.created_at.includes('T') ? item.created_at.split('T')[0] : item.created_at);
+        }
+
+        title.textContent = `${item.expName || '(无名称)'}${dateStr}`;
+
+        const small = document.createElement('div');
+        small.style.fontSize = '13px';
+        small.style.color = '#333';
+        small.innerHTML = `\n      <div><strong>数据：</strong>${escapeHtml(item.expData || '-')}</div>\n      <div><strong>备注：</strong>${escapeHtml(item.expNote || '-')}</div>\n      <div style="margin-top:6px;"><strong>ID：</strong>${item.id}</div>\n    `;
+
+        entry.appendChild(title);
+        entry.appendChild(small);
+        container.appendChild(entry);
+      });
+
+      if (list.length > maxShow) {
+        const more = document.createElement('div');
+        more.style.textAlign = 'center';
+        more.style.marginTop = '8px';
+        more.innerHTML = `<small style="color:#666">... 共 ${list.length} 条历史（仅显示最近 ${maxShow} 条）</small>`;
+        container.appendChild(more);
+      }
+    }
+
+    // 打开 "添加实验记录" 时延迟拉取历史，以保证弹窗已显示
+    const cardFirst = document.querySelectorAll('.card')[0];
+    if (cardFirst) {
+      cardFirst.addEventListener('click', () => {
+        setTimeout(loadExperimentList, 120);
+      });
+    }
+
+    // 覆写 saveExperiment，保持原有功能并在保存成功后刷新历史列表
+    const oldSaveExperiment = window.saveExperiment;
+    window.saveExperiment = async function () {
+      if (typeof oldSaveExperiment === 'function') {
+        const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+        const expName = document.getElementById('expName')?.value || '';
+        const expDate = document.getElementById('expDate')?.value || '';
+        const expData = document.getElementById('expData')?.value || '';
+        const expNote = document.getElementById('expNote')?.value || '';
+
+        try {
+          const res = await fetch(`${BASE_URL}/addExperiment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, expName, expDate, expData, expNote })
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            alert('实验记录保存成功！');
+            // 保存成功后刷新历史列表
+            await loadExperimentList();
+          } else {
+            alert('保存失败：' + (data.error || data.reason || '未知错误'));
+          }
+        } catch (e) {
+          console.error(e);
+          alert('请求出错');
+        }
+      }
+    };
+
+    const form = document.getElementById('addExperimentForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        saveExperiment();
+      });
+    } else {
+      console.error('没找到表单 addExperimentForm');
+    }
+
+    /* ====== 日历功能：渲染当前月份并支持翻月 ======
+       说明：渲染单月日历并将当天样式加上 .today 类。 */
+    const monthYear = document.getElementById("month-year");
+    const calendarBody = document.getElementById("calendar-body");
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+
+    function renderCalendar(month, year) {
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      monthYear.textContent = `${year}年 ${month + 1}月`;
+
+      calendarBody.innerHTML = "";
+      let date = 1;
+
+      for (let i = 0; i < 6; i++) {
+        let row = document.createElement("tr");
+
+        for (let j = 0; j < 7; j++) {
+          let cell = document.createElement("td");
+
+          if (i === 0 && j < firstDay) {
+            cell.textContent = "";
+          } else if (date > daysInMonth) {
+            cell.textContent = "";
+          } else {
+            cell.textContent = date;
+            if (date === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+              cell.classList.add("today");
+            }
+            date++;
+          }
+
+          row.appendChild(cell);
+        }
+
+        calendarBody.appendChild(row);
+      }
+    }
+
+    document.getElementById("prev-month").addEventListener("click", () => {
+      currentMonth--;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderCalendar(currentMonth, currentYear);
+    });
+
+    document.getElementById("next-month").addEventListener("click", () => {
+      currentMonth++;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      renderCalendar(currentMonth, currentYear);
+    });
+
+    renderCalendar(currentMonth, currentYear);
+
+    /* ====== 论文进度（提交与历史拉取）
+       说明：提交进度到 /saveProgress，拉取历史到弹窗内显示。 */
+    (function () {
+      const progressForm = document.getElementById('progressForm');
+
+      if (progressForm) {
+        progressForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          submitThesisProgress();
+        });
+      }
+
+      async function submitThesisProgress() {
+        const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+        if (!username) {
+          alert('未检测到登录用户，请先登录');
+          return;
+        }
+
+        const progressSummary = document.getElementById('progressSummary').value.trim();
+        const completedItems = document.getElementById('completedTasks').value.trim();
+        const resultOutput = document.getElementById('output').value.trim();
+        const problemsEncountered = document.getElementById('issues').value.trim();
+        const nextPlan = document.getElementById('nextPlan').value.trim();
+
+        if (!progressSummary) {
+          alert('请填写进度概述');
+          return;
+        }
+
+        const payload = {
+          username,
+          progressSummary,
+          completedItems,
+          resultOutput,
+          problemsEncountered,
+          nextPlan
+        };
+
+        try {
+          const res = await fetch(`${BASE_URL}/saveProgress`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            alert('进度保存成功（ID:' + data.progressId + '）');
+            progressForm.reset();
+            document.querySelectorAll('.card').forEach(c => c.style.display = 'block');
+            document.getElementById('newcard2').style.display = 'none';
+            loadProgressList();
+          } else {
+            alert('保存失败：' + (data.reason || data.error || 'unknown'));
+          }
+        } catch (err) {
+          console.error('提交进度出错：', err);
+          alert('提交出错，请查看控制台');
+        }
+      }
+
+      async function loadProgressList() {
+        const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+        if (!username) return;
+
+        try {
+          const res = await fetch(`${BASE_URL}/getProgress?username=` + encodeURIComponent(username));
+          const data = await res.json();
+          if (!data.success) return;
+          renderProgressHistory(data.data || []);
+        } catch (err) {
+          console.error('拉取历史出错：', err);
+        }
+      }
+
+      function renderProgressHistory(list) {
+        const containerId = 'progressHistoryContainer';
+        let container = document.getElementById(containerId);
+        const parent = document.getElementById('newcard2');
+        if (!parent) return;
+        if (!container) {
+          container = document.createElement('div');
+          container.id = containerId;
+          container.style.width = '80%';
+          container.style.margin = '20px auto';
+          container.style.padding = '12px';
+          container.style.borderTop = '1px dashed #acc3e3';
+          container.style.textAlign = 'left';
+          container.style.color = '#033d94';
+          parent.appendChild(container);
+        }
+
+        container.innerHTML = '<h3 style="color:#0348b0;margin-bottom:8px;">历史进度（最近）</h3>';
+
+        if (!list || list.length === 0) {
+          const p = document.createElement('p'); p.textContent = '暂无历史进度。'; p.style.color = '#666'; container.appendChild(p); return;
+        }
+
+        const maxShow = 10;
+        list.slice(0, maxShow).forEach(item => {
+          const entry = document.createElement('div');
+          entry.style.padding = '8px 0';
+          entry.style.borderBottom = '1px solid #eee';
+
+          const title = document.createElement('div');
+          title.style.fontWeight = '700';
+          title.style.marginBottom = '4px';
+          const dateStr = item.created_at ? (' ' + item.created_at.split('T')[0]) : '';
+          title.textContent = `${item.progress_summary || '(无概述)'}${dateStr}`;
+
+          const small = document.createElement('div');
+          small.style.fontSize = '13px';
+          small.style.color = '#333';
+          small.innerHTML = `\n        <div><strong>完成项：</strong>${(item.completed_items || '-')}</div>\n        <div><strong>结果：</strong>${(item.result_output || '-')}</div>\n        <div><strong>问题：</strong>${(item.problems_encountered || '-')}</div>\n        <div><strong>下阶段：</strong>${(item.next_plan || '-')}</div>\n      `;
+
+          entry.appendChild(title); entry.appendChild(small);
+          container.appendChild(entry);
+        });
+
+        if (list.length > maxShow) {
+          const more = document.createElement('div');
+          more.style.textAlign = 'center';
+          more.style.marginTop = '8px';
+          more.innerHTML = `<small style="color:#666">... 共 ${list.length} 条历史（仅显示最近 ${maxShow} 条）</small>`;
+          container.appendChild(more);
+        }
+      }
+
+      const cardSecond = document.querySelectorAll('.card')[1];
+      if (cardSecond) {
+        cardSecond.addEventListener('click', () => {
+          setTimeout(loadProgressList, 120);
+        });
+      }
+    })();
+
+    /* ====== 文献管理（保存与历史拉取）
+       说明：去除文件上传相关 UI，当前以 JSON 形式提交文献元信息到 /addLiterature。
+    */
+    async function saveLiterature() {
+      const title = document.getElementById('title').value.trim();
+      const authors = document.getElementById('authors').value.trim();
+      const journal = document.getElementById('journal').value.trim();
+      const yearVal = document.getElementById('year').value;
+      const keywords = document.getElementById('keywords').value.trim();
+      const abstractTxt = document.getElementById('abstract').value.trim();
+      const link = document.getElementById('link').value.trim();
+      const notes = document.getElementById('notes').value.trim();
+
+      const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+      if (!username) {
+        showMessage('未检测到登录用户，请先登录', 'error');
+        return;
+      }
+
+      if (!title || !authors) {
+        showMessage('请填写文献标题和作者', 'error');
+        return;
+      }
+
+      try {
+        showMessage('正在保存文献...', 'info');
+
+        const payload = {
+          username,
+          title,
+          authors: authors,
+          journal: journal,
+          year: yearVal ? parseInt(yearVal, 10) : null,
+          keywords: keywords,
+          abstract: abstractTxt,
+          link: link,
+          notes: notes
+        };
+
+        console.log('发送文献数据:', payload);
+
+        const response = await fetch(`${BASE_URL}/addLiterature`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (data && data.success) {
+          showMessage('文献保存成功！文献ID: ' + data.literatureId, 'success');
+          document.getElementById('literatureForm').reset();
+
+          // 使用延迟保持既有体验：短暂显示成功提示后返回主页
+          setTimeout(() => {
+            document.querySelectorAll('.card').forEach(c => c.style.display = 'block');
+            document.getElementById('newcard4').style.display = 'none';
+            document.querySelector('.calendar-log-container').style.display = 'flex';
+          }, 1500);
+
+          setTimeout(loadLiteratureList, 300);
+        } else {
+          const errorMsg = data && data.error ? data.error : '未知错误';
+          showMessage('保存失败：' + errorMsg, 'error');
+        }
+      } catch (err) {
+        console.error('提交文献出错：', err);
+        showMessage('网络错误，请检查服务器连接: ' + err.message, 'error');
+      }
+    }
+
+    async function loadLiteratureList() {
+      const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+      if (!username) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BASE_URL}/getLiterature?username=` + encodeURIComponent(username));
+        const data = await res.json();
+        if (!data.success) {
+          console.warn('拉取文献记录失败', data);
+          return;
+        }
+        renderLiteratureHistory(data.data || []);
+      } catch (err) {
+        console.error('加载文献记录出错：', err);
+      }
+    }
+
+    function renderLiteratureHistory(list) {
+      const containerId = 'literatureHistoryContainer';
+      let container = document.getElementById(containerId);
+      const parent = document.getElementById('newcard4');
+      if (!parent) return;
+
+      if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.style.width = '80%';
+        container.style.margin = '20px auto';
+        container.style.padding = '12px';
+        container.style.borderTop = '1px dashed #acc3e3';
+        container.style.textAlign = 'left';
+        container.style.color = '#033d94';
+        parent.appendChild(container);
+      }
+
+      container.innerHTML = '<h3 style="color:#0348b0;margin-bottom:8px;">历史文献记录（最近）</h3>';
+
+      if (!list || list.length === 0) {
+        const p = document.createElement('p');
+        p.textContent = '暂无文献记录。';
+        p.style.color = '#666';
+        container.appendChild(p);
+        return;
+      }
+
+      const maxShow = 10;
+      list.slice(0, maxShow).forEach(item => {
+        const entry = document.createElement('div');
+        entry.style.padding = '8px 0';
+        entry.style.borderBottom = '1px solid #eee';
+
+        const title = document.createElement('div');
+        title.style.fontWeight = '700';
+        title.style.marginBottom = '4px';
+        const dateStr = item.created_at ? (' ' + (item.created_at.includes('T') ? item.created_at.split('T')[0] : item.created_at)) : '';
+        title.textContent = `${item.title || '(无标题)'}${dateStr}`;
+
+        const small = document.createElement('div');
+        small.style.fontSize = '13px';
+        small.style.color = '#333';
+
+        small.innerHTML = `\n          <div><strong>作者：</strong>${escapeHtml(item.authors || '-')}</div>\n          <div><strong>期刊/会议：</strong>${escapeHtml(item.journal || '-')} ${item.year ? '(' + escapeHtml(item.year) + ')' : ''}</div>\n          <div><strong>关键词：</strong>${escapeHtml(item.keywords || '-')}</div>\n          <div><strong>链接：</strong>${item.link ? ('<a href="' + escapeHtml(item.link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(item.link) + '</a>') : '-'}</div>\n          <div><strong>备注：</strong>${escapeHtml(item.notes || '-')}</div>\n\n        `;
+
+        entry.appendChild(title);
+        entry.appendChild(small);
+        container.appendChild(entry);
+      });
+
+      if (list.length > maxShow) {
+        const more = document.createElement('div');
+        more.style.textAlign = 'center';
+        more.style.marginTop = '8px';
+        more.innerHTML = `<small style="color:#666">... 共 ${list.length} 条历史（仅显示最近 ${maxShow} 条）</small>`;
+        container.appendChild(more);
+      }
+    }
+
+    const literatureForm = document.getElementById('literatureForm');
+    if (literatureForm) {
+      literatureForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        saveLiterature();
+      });
+    } else {
+      console.error('未找到 literatureForm 表单');
+    }
+
+    const cardFourth = document.querySelectorAll('.card')[2];
+    if (cardFourth) {
+      cardFourth.addEventListener('click', () => {
+        setTimeout(loadLiteratureList, 120);
+      });
+    }
+  </script>
+
+  <script>
+    /* ====== 日志相关：保存并同步到后端 ======
+       说明：将日志提交到 /addLog，加载时会拉取用户日志并渲染。 */
+
+    async function saveLogToServer(content, title = null) {
+      const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+      if (!username) {
+        showMessage('未检测到登录用户，请先登录', 'error');
+        return { success: false, error: '未登录' };
+      }
+
+      try {
+        const res = await fetch(`${BASE_URL}/addLog`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, title, content })
+        });
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        console.error('保存日志出错:', err);
+        return { success: false, error: err.message || '网络错误' };
+      }
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // 将单条日志渲染到左侧日志容器顶部（用于即时显示新保存的日志）
+    function prependLogToUI(log) {
+      const container = document.querySelector('#log-container .log-content');
+      if (!container) return;
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `\n    <h4>${log.title ? escapeHtml(log.title) : '个人日志'} \n      <small style="font-weight:600;color:#666;margin-left:8px;font-size:12px">\n        ${formatDateTime(log.created_at || log.log_date)}\n      </small>\n    </h4>\n    <p>${escapeHtml(log.content)}</p>\n  `;
+
+      container.insertBefore(entry, container.firstChild);
+    }
+
+    // 页面加载时拉取并渲染历史日志
+    async function loadUserLogs() {
+      const username = sessionStorage.getItem('username') || localStorage.getItem('username');
+      if (!username) {
+        return;
+      }
+      try {
+        const res = await fetch(`${BASE_URL}/getLogs?username=` + encodeURIComponent(username));
+        const data = await res.json();
+        if (!data.success) { console.warn('拉取日志失败', data); return; }
+        const list = data.data || [];
+        const container = document.querySelector('#log-container .log-content');
+        if (!container) return;
+
+        container.innerHTML = '';
+        if (list.length === 0) {
+          container.innerHTML = '<div class="log-entry"><h4>暂无日志</h4><p>尚未创建任何日志</p></div>';
+          return;
+        }
+
+        list.forEach(item => {
+          const entry = document.createElement('div');
+          entry.className = 'log-entry';
+          entry.innerHTML = `\n    <h4>${item.title ? escapeHtml(item.title) : '个人日志'} \n      <small style="font-weight:600;color:#666;margin-left:8px;font-size:12px">\n        ${formatDateTime(item.created_at || item.log_date)}\n      </small>\n    </h4>\n    <p>${escapeHtml(item.content)}</p>\n  `;
+          container.appendChild(entry);
+        });
+
+      } catch (err) {
+        console.error('加载日志失败：', err);
+      }
+    }
+
+    // 简单的前端转义函数，用于防止显示时的 HTML 注入（仅用于展示）
+    function escapeHtml(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;')
+        .replaceAll('\n', '<br>');
+    }
+
+    // 绑定日志保存按钮：提交并在成功后将日志即时渲染到界面
+    document.getElementById('save-log').addEventListener('click', async function () {
+      const contentEl = document.getElementById('log-input');
+      const content = contentEl.value.trim();
+      if (!content) {
+        showMessage('日志内容不能为空', 'error');
+        return;
+      }
+      showMessage('正在保存日志...', 'info');
+      const result = await saveLogToServer(content, null);
+      if (result && result.success) {
+        showMessage('日志保存成功', 'success');
+        contentEl.value = '';
+        if (result.log) prependLogToUI(result.log);
+      } else {
+        showMessage('保存失败：' + (result.error || '未知错误'), 'error');
+      }
+    });
+
+    window.addEventListener('load', function () {
+      loadUserLogs();
+    });
+  </script>
+</body>
+
+</html>
