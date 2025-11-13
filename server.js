@@ -35,9 +35,9 @@ const upload = multer({ storage });
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('username', username)
+    .from("users")
+    .select("*")
+    .eq("username", username)
     .single();
 
   if (error) return res.status(500).json({ success: false, error: error.message });
@@ -55,15 +55,15 @@ app.post('/addExperiment', async (req, res) => {
   const { username, expName, expDate, expData, expNote } = req.body;
 
   const { data: user, error: userErr } = await supabase
-    .from('users')
-    .select('id')
-    .eq('username', username)
+    .from("users")
+    .select("id")
+    .eq("username", username)
     .single();
 
   if (userErr) return res.status(500).json({ success: false, error: userErr.message });
   if (!user) return res.status(404).json({ success: false, reason: 'no_user' });
 
-  const { data, error } = await supabase.from('experiments').insert([{
+  const { data, error } = await supabase.from("experiments").insert([{
     user_id: user.id,
     expName,
     expDate: expDate || null,
@@ -78,19 +78,19 @@ app.post('/addExperiment', async (req, res) => {
 app.get('/getExperiments', async (req, res) => {
   const { username } = req.query;
   const { data: user, error: userErr } = await supabase
-    .from('users')
-    .select('id')
-    .eq('username', username)
+    .from("users")
+    .select("id")
+    .eq("username", username)
     .single();
 
   if (userErr) return res.status(500).json({ success: false, error: userErr.message });
   if (!user) return res.status(404).json({ success: false, reason: 'no_user' });
 
   const { data, error } = await supabase
-    .from('experiments')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('expDate', { ascending: false });
+    .from("experiments")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("expDate", { ascending: false });
 
   if (error) return res.status(500).json({ success: false, error: error.message });
   res.json({ success: true, data });
@@ -101,9 +101,9 @@ app.post('/addLiterature', upload.single('literatureFile'), async (req, res) => 
   const { username, title, authors, journal, year, keywords, abstract, link, notes } = req.body;
 
   const { data: user, error: userErr } = await supabase
-    .from('users')
-    .select('id')
-    .eq('username', username)
+    .from("users")
+    .select("id")
+    .eq("username", username)
     .single();
 
   if (userErr) return res.status(500).json({ success: false, error: userErr.message });
@@ -114,7 +114,7 @@ app.post('/addLiterature', upload.single('literatureFile'), async (req, res) => 
   const file_size = req.file ? req.file.size : null;
   const file_type = req.file ? req.file.mimetype : null;
 
-  const { data, error } = await supabase.from('literature').insert([{
+  const { data, error } = await supabase.from("literature").insert([{
     user_id: user.id,
     title, authors, journal, year, keywords, abstract, link,
     file_path, file_name, file_size, file_type, notes
