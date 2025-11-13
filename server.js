@@ -35,9 +35,9 @@ const upload = multer({ storage });
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('username', username)
+    .from('"users"')
+    .select('"*"')
+    .eq('"username"', username)
     .single();
 
   if (error) return res.status(500).json({ success: false, error: error.message });
@@ -127,3 +127,4 @@ app.post('/addLiterature', upload.single('literatureFile'), async (req, res) => 
 // ----------------- 启动服务器 -----------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Supabase 服务器运行在端口 ${PORT}`));
+
